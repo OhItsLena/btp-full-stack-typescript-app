@@ -1,4 +1,10 @@
 <script lang="ts">
+    import "@ui5/webcomponents/dist/Button";
+    import "@ui5/webcomponents-icons/dist/refresh.js";
+    import "@ui5/webcomponents-icons/dist/add.js";
+    import "@ui5/webcomponents-icons/dist/education.js";
+    import "@ui5/webcomponents/dist/List.js";
+    import "@ui5/webcomponents/dist/StandardListItem.js";
     import { onMount } from "svelte";
     import { store } from "./store";
 
@@ -21,58 +27,63 @@
         descr = "";
         ects = undefined;
     }
-    function handleDelete(ID) {
-        promise = store.delete(ID);
+    function handleDelete(event) {
+        promise = store.delete(event.detail.item.dataset.cid);
     }
 </script>
 
 <main>
-    <h1>🎓Courses</h1>
+    <h1><ui5-icon name="education" style="width:2rem;height:2rem;" /> Courses</h1>
     <div class="row">
         <div class="column">
             {#await promise}
-                <p>...waiting</p>
+                <ui5-list header-text="Fetching data ..." busy />
             {:then}
-                <ul>
+                <ui5-list
+                    id="myList5"
+                    mode="Delete"
+                    on:item-delete={handleDelete}
+                    style="height: 500px"
+                    growing="Scroll"
+                    header-text="All Courses"
+                >
                     {#each $store as course}
-                        <li>
+                        <ui5-li data-cid={course.ID}>
                             {course.name}: {course.descr}
-                            <button class="del" on:click={() => handleDelete(course.ID)}>❌</button>
-                        </li>
+                        </ui5-li>
                     {/each}
-                </ul>
+                </ui5-list>
             {:catch error}
                 <p style="color: red">{error.message}</p>
-                <button
+                <ui5-button
+                    design="Emphasized"
+                    icon="refresh"
                     on:click={() => {
                         promise = store.get();
-                    }}>🔄 Try reload</button
+                    }}
                 >
+                    Try reload
+                </ui5-button>
             {/await}
         </div>
         <div class="column">
             <h2>Create new Course</h2>
             <form>
-                <label for="id">ID:</label><br />
-                <input type="text" id="id" name="id" bind:value={id} /><br />
-                <label for="name">Name:</label><br />
-                <input type="text" id="name" name="name" bind:value={name} /><br /><br />
-                <label for="descr">Description:</label><br />
-                <input type="text" id="descr" name="descr" bind:value={descr} /><br /><br />
-                <label for="ects">ECTS:</label><br />
-                <input type="number" id="ects" name="ects" bind:value={ects} /><br /><br />
+                <label for="id">ID:</label>
+                <input type="text" id="id" name="id" bind:value={id} />
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" bind:value={name} />
+                <label for="descr">Description:</label>
+                <input type="text" id="descr" name="descr" bind:value={descr} />
+                <label for="ects">ECTS:</label>
+                <input type="number" id="ects" name="ects" bind:value={ects} />
             </form>
-            <button on:click={handleCreate}>Add Course</button>
+            <ui5-button design="Emphasized" icon="add" on:click={handleCreate}>Add Course</ui5-button>
         </div>
     </div>
 </main>
 
 <style>
-    button.del {
-        background: transparent;
-        border: none;
-    }
-
     .row {
         display: flex;
         flex-wrap: wrap;

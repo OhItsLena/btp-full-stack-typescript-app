@@ -1,4 +1,6 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+var ZipPlugin = require('zip-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
 const path = require('path');
 const sveltePreprocess = require('svelte-preprocess');
 
@@ -62,6 +64,24 @@ module.exports = {
 	plugins: [
 		new MiniCssExtractPlugin({
 			filename: '[name].css'
+		}),
+		new CopyPlugin({
+			patterns: [
+				{
+					from: "public", to: "build", globOptions: {
+						ignore: [
+							'**.zip',
+							'**/build/**/*'
+						]
+					}
+				},
+			],
+		}),
+		new ZipPlugin({
+			filename: 'courses.zip',
+			pathMapper: function (assetPath) {
+				return path.basename(assetPath);
+			}
 		})
 	],
 	devtool: prod ? false : 'source-map',
