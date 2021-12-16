@@ -12,7 +12,7 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm install --production
+        - npm install
         - npm run build:cf
         #- npx rimraf gen/db/src/gen/data # Uncomment this line to prevent reset of DB with .csv sample data
 
@@ -21,6 +21,8 @@ modules:
     type: approuter.nodejs
     path: router
     parameters:
+      routes:
+        - route: https://${appname}.${default-domain} # TODO: change back to generated route (= remove line) before publishing!
       disk-quota: 256M
       memory: 256M
     requires:
@@ -69,6 +71,10 @@ modules:
             - lectures.zip
           name: lectures
           target-path: app_resources/
+        - artifacts:
+            - courses.zip
+          name: courses
+          target-path: app_resources/
   - name: lectures
     type: html5
     path: app/lectures
@@ -78,6 +84,16 @@ modules:
       commands:
         - npm install
         - npm run build:cf
+      supported-platforms: []
+  - name: courses
+    type: html5
+    path: app/svelte-project
+    build-parameters:
+      build-result: public
+      builder: custom
+      commands:
+        - npm install
+        - npm run build
       supported-platforms: []
 
 resources:
